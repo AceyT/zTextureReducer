@@ -189,7 +189,9 @@ class zOption:
         self.option_callback = callback
 
     def _pick_dir(self):
-        directory = tk.filedialog.askdirectory(initialdir="./", title="Choose a directory for where to export")
+        directory = tk.filedialog.askdirectory(
+            initialdir="./", 
+            title="Choose a directory for where to export")
         dirpath = Path(directory)
         if dirpath.exists():
             self.dir_entry.insert('', dirpath.abspath())
