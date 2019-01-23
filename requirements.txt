@@ -1,0 +1,4 @@
+importlib-metadata==0.8
+path.py==11.5.0
+Pillow==5.4.1
+zipp==0.3.3
