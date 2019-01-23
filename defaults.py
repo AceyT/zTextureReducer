@@ -1,6 +1,7 @@
 
 class zDefault:
 
+    zoom = (1, 2, 4)
     sizes = (128, 64, 32, 16, 8)
     sampling_modes = (
         "Nearest",
@@ -26,7 +27,8 @@ class zDefault:
         "recolor" : 1,
         "colors" : color_modes[-1],
         "dither" : 1,
-        "order" : order_modes[0]
+        "order" : order_modes[0],
+        "zoom" : zoom[0]
     }
 
 

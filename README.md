@@ -16,7 +16,7 @@ An image processing utility, to plan modifications ahead and then batch execute 
 ## TODO
 
  - Activate the big export button
- - Zoom on preview (by rescaling with NEAREST)
+ - ~~Zoom on preview (by rescaling with NEAREST)~~
  - Add requirements.txt to `pip install` dependency easily
 
 

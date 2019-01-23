@@ -2,6 +2,7 @@
 
 import tkinter as tk
 from tkinter import ttk
+from functools import partial
 from path import Path
 from PIL import Image, ImageTk
 from defaults import zDefault
@@ -18,6 +19,23 @@ def resize(img: Image, **options):
         size=(options["width"],options["height"]),
         resample=options["sampling"]
         )
+
+def zoom(img: Image, zoom):
+    resize = (img.width * zoom, img.height * zoom)
+    return img.resize(size=resize, resample=Image.NEAREST)
+
+def process_image(img: Image, **options):
+    if options["order"]:
+        if options["recolor"]:
+            img = recolor(img, **options)
+        if options["resize"]:
+            img = resize(img, **options)
+    else:
+        if options["resize"]:
+            img = resize(img, **options)
+        if options["recolor"]:
+            img = recolor(img, **options)
+    return img
 
 class zPreview:
 
@@ -49,15 +67,36 @@ class zPreview:
         "Recolor first" : 1
     }
 
+    
+
     def __init__(self, master: tk.BaseWidget, **kwargs):
         self.container = ttk.LabelFrame(master, text="Preview",
                                         width=150, height=150)
         self.options = zDefault.config.copy()
+        self.zoompreview_frame = tk.Frame(self.container)
+        zoompreview_label = tk.Label(self.zoompreview_frame,
+                                     text="Zoom preview :")
+        zoompreview_label.pack(side="left")
+        self.zoompreview_value = tk.IntVar()
+        self.zoompreview_value.set(self.options["zoom"])
+        self.zoompreview_options = ttk.OptionMenu(
+            self.zoompreview_frame,
+            self.zoompreview_value,
+            self.zoompreview_value.get(),
+            *zDefault.zoom,
+            command=partial(self._forward_options, "zoom", self.zoompreview_value))
+        self.zoompreview_options.pack(side="left")
+        self.zoompreview_frame.pack(side="top")
         self.img_container = tk.Label(self.container, anchor="center")
         self.img_container.pack(expand=True)
         self.image_path = None
         self.container.pack(expand=True, fill="both")
         pass
+
+    def _forward_options(self, key: str, var: tk.Variable, *unused):
+        option = {}
+        option[key] = var.get()
+        self.set_options(**option)
 
     def set_options(self, *args, **kwargs):
         update = False
@@ -94,15 +133,7 @@ class zPreview:
         if self.image_path:
             tmp_pil = Image.open(self.image_path)
             if options["preview"]:
-                if options["order"]:
-                    if options["recolor"]:
-                        tmp_pil = recolor(tmp_pil, **options)
-                    if options["resize"]:
-                        tmp_pil = resize(tmp_pil, **options)
-                else:
-                    if options["resize"]:
-                        tmp_pil = resize(tmp_pil, **options)
-                    if options["recolor"]:
-                        tmp_pil = recolor(tmp_pil, **options)
+                tmp_pil = process_image(tmp_pil, **options)
+            tmp_pil = zoom(tmp_pil, options["zoom"])
             self.image_preview = ImageTk.PhotoImage(tmp_pil)
             self.img_container.configure(image=self.image_preview)
