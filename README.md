@@ -18,5 +18,11 @@ An image processing utility, to plan modifications ahead and then batch execute 
  - ~~Activate the big export button~~
  - ~~Zoom on preview (by rescaling with NEAREST)~~
  - Add requirements.txt to `pip install` dependency easily
-
+ - Delete queue after export
+ - Does dithering really work ?
+   - If not, should consider adding `PIL.Image.quantize` function to the stack of operation
+ - How to support different color format
+   - RGBA5551
+   - ia16 (8 bits greyscale  8 bits alpha)
+   - ...
 
