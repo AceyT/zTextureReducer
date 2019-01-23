@@ -37,6 +37,19 @@ def process_image(img: Image, **options):
             img = recolor(img, **options)
     return img
 
+def convert_options(**options):
+    real = {}
+    for key in options.keys():
+        if options[key] in zPreview.sampling_conv.keys():
+            real[key] = zPreview.sampling_conv[options[key]]
+        elif options[key] in zPreview.colors_conv.keys():
+            real[key] = zPreview.colors_conv[options[key]]
+        elif options[key] in zPreview.order_conv.keys():
+            real[key] = zPreview.order_conv[options[key]]
+        else:
+            real[key] = options[key]
+    return real
+
 class zPreview:
 
     sampling_conv = {
@@ -67,8 +80,6 @@ class zPreview:
         "Recolor first" : 1
     }
 
-    
-
     def __init__(self, master: tk.BaseWidget, **kwargs):
         self.container = ttk.LabelFrame(master, text="Preview",
                                         width=150, height=150)
@@ -97,6 +108,24 @@ class zPreview:
         option = {}
         option[key] = var.get()
         self.set_options(**option)
+        
+    def _update_preview(self):
+        options = convert_options(**self.options)
+        if self.image_path:
+            tmp_pil = Image.open(self.image_path)
+            if options["preview"]:
+                tmp_pil = process_image(tmp_pil, **options)
+            tmp_pil = zoom(tmp_pil, options["zoom"])
+            self.image_preview = ImageTk.PhotoImage(tmp_pil)
+            self.img_container.configure(image=self.image_preview)
+
+    def on_image_select_update(self, img):
+        img = Path(img)
+        if img.exists():
+            self.image_path = img.abspath()
+        else:
+            self.image_path = None
+        self._update_preview()
 
     def set_options(self, *args, **kwargs):
         update = False
@@ -107,33 +136,13 @@ class zPreview:
         if update:
             self._update_preview()
 
-    def on_image_select_update(self, img):
-        img = Path(img)
-        if img.exists():
-            self.image_path = img.abspath()
-        else:
-            self.image_path = None
-        self._update_preview()
-
-    def _convert_options(self):
-        real = {}
-        for key in self.options.keys():
-            if self.options[key] in zPreview.sampling_conv.keys():
-                real[key] = zPreview.sampling_conv[self.options[key]]
-            elif self.options[key] in zPreview.colors_conv.keys():
-                real[key] = zPreview.colors_conv[self.options[key]]
-            elif self.options[key] in zPreview.order_conv.keys():
-                real[key] = zPreview.order_conv[self.options[key]]
-            else:
-                real[key] = self.options[key]
-        return real
-        
-    def _update_preview(self):
-        options = self._convert_options()
-        if self.image_path:
-            tmp_pil = Image.open(self.image_path)
-            if options["preview"]:
-                tmp_pil = process_image(tmp_pil, **options)
-            tmp_pil = zoom(tmp_pil, options["zoom"])
-            self.image_preview = ImageTk.PhotoImage(tmp_pil)
-            self.img_container.configure(image=self.image_preview)
+    def export_queue(self, queue_getter, export_path):
+        if queue_getter:
+            queue = queue_getter()
+            options = convert_options(**self.options)
+            for item in queue:
+                img_path = Path(item)
+                res_path = export_path / img_path.name
+                img = Image.open(img_path.abspath())
+                img = process_image(img, **options)
+                img.save(res_path.abspath())

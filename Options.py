@@ -26,6 +26,7 @@ class zOption:
             height=100)
         self.container.pack(side="top", expand=True, fill="both", anchor="e")
         self.option_callback = kwargs.get("on_options_modified", None)
+        self.export_callback = kwargs.get("on_export", None)
         config = zDefault.config.copy()
         # Options controls
         self.optionframe = tk.Frame(self.container)
@@ -165,7 +166,8 @@ class zOption:
                                        bg="#ffdf82",
                                        activebackground="#c4ab64",
                                        relief=tk.GROOVE,
-                                       border=3)
+                                       border=3,
+                                       command=self._on_export)
         self.export_button.pack(side="top", expand=True, fill="x")
         
         self.container.rowconfigure(0, weight=10)
@@ -188,12 +190,16 @@ class zOption:
     def set_option_callback(self, callback):
         self.option_callback = callback
 
+    def set_export_callback(self, export_callback):
+        self.export_callback = export_callback
+
     def _pick_dir(self):
         directory = tk.filedialog.askdirectory(
             initialdir="./", 
             title="Choose a directory for where to export")
         dirpath = Path(directory)
         if dirpath.exists():
+            self.dir_entry.delete(0, 'end')
             self.dir_entry.insert('', dirpath.abspath())
 
     def _update_fromvar(self, key: str, var: tk.Variable, *unused):
@@ -210,4 +216,14 @@ class zOption:
     def _update_config(self, **kwargs):
         if self.option_callback:
             self.option_callback(**kwargs)
+
+    def _on_export(self):
+        export_path = Path(self.dir_entry.get())
+        if export_path.exists() and self.export_callback:
+            self.export_callback(export_path)
+        elif not export_path.exists():
+            print("Invalid export path : Doesn't exists")
+            print("-- given path : [{}]".format(export_path.abspath()))
+
+
 

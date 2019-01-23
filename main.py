@@ -1,5 +1,6 @@
 #coding: utf-8
 
+from functools import partial
 import tkinter as tk
 
 from Workspace import zWorkspace
@@ -19,7 +20,9 @@ workspace = zWorkspace(frame_workspace)
 queue = zQueue(frame_queue, add_callback=workspace.get_selection_and_unselect)
 preview = zPreview(frame_preview)
 workspace.bind_dclick_select(preview.on_image_select_update)
-options = zOption(frame_options, on_options_modified=preview.set_options)
+options = zOption(frame_options,
+                  on_options_modified=preview.set_options,
+                  on_export=partial(preview.export_queue, queue.get_queue))
 
 frame_workspace.grid(column=0, row=0, sticky="nesw")
 frame_queue.grid(column=0, row=1, sticky="nesw")
@@ -30,8 +33,5 @@ win.columnconfigure(0, weight=6, minsize=400)
 win.columnconfigure(1, weight=4, minsize=200)
 win.rowconfigure(0, weight=5)
 win.rowconfigure(1, weight=5)
-
-#frame_queue.columnconfigure(0, weight=1)
-#frame_queue.rowconfigure(0, weight=1)
 
 win.mainloop()

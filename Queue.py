@@ -37,7 +37,7 @@ class zQueue:
         self.remove_all_button = ttk.Button(
             self.controls,
             text="Remove All",
-            command=self._remove_all_cb)
+            command=self.remove_all)
         self.remove_all_button.pack(side="left")
         self.controls.pack(side="top", expand=False, anchor="w")
         # Treeview
@@ -56,5 +56,11 @@ class zQueue:
         print(*self.queue.selection())
         self.queue.delete(*self.queue.selection())
 
-    def _remove_all_cb(self):
+    def remove_all(self):
         self.queue.delete(*self.queue.get_children())
+
+    def get_queue(self):
+        ret = []
+        for item in self.queue.get_children():
+            ret.append(self.queue.item(item,'text'))
+        return ret
