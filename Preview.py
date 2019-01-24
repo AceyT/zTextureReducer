@@ -8,11 +8,21 @@ from PIL import Image, ImageTk
 from defaults import zDefault
 
 def recolor(img: Image, **options):
-    return img.convert(
+    result = img.convert(
         mode=options["colors"]["mode"],
         palette=Image.ADAPTIVE,
-        dither=options["dither"],
-        colors=options["colors"]["colors"] )
+        colors=options["colors"]["colors"])
+    if options["dither"]:
+        dithered = img.convert(
+            mode="RGB",
+            palette=Image.ADAPTIVE,
+            colors=options["colors"]["colors"])
+        dithered = dithered.quantize(
+            method=3,
+            colors=options["colors"]["colors"],
+            palette=result)
+        return dithered
+    return result
 
 def resize(img: Image, **options):
     return img.resize(
@@ -25,6 +35,11 @@ def zoom(img: Image, zoom):
     return img.resize(size=resize, resample=Image.NEAREST)
 
 def process_image(img: Image, **options):
+    img = img.convert("RGBA")
+    alpha = None
+    size = (img.width, img.height)
+    if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
+        alpha = img.split()[-1]
     if options["order"]:
         if options["recolor"]:
             img = recolor(img, **options)
@@ -35,6 +50,10 @@ def process_image(img: Image, **options):
             img = resize(img, **options)
         if options["recolor"]:
             img = recolor(img, **options)
+    if alpha:
+        if options["resize"]:
+            alpha = alpha.resize((options["width"], options["height"]), Image.NEAREST)
+        img.putalpha(alpha)
     return img
 
 def convert_options(**options):
@@ -63,7 +82,7 @@ class zPreview:
 
     colors_conv = {
         "Greyscale" : {
-            "mode" : "L",
+            "mode" : "LA",
             "colors" : 256
         },
         "16 Colors Palette" : {

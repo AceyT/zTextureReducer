@@ -39,8 +39,10 @@ $> python main.py
  - ~~Add requirements.txt to `pip install` dependency easily~~
  - ~~`win/*.bat` files for windows users to easily install dependency and use it.~~
  - Delete queue after export
- - Does dithering really work ?
-   - If not, should consider adding `PIL.Image.quantize` function to the stack of operations
+ - ~~Alpha preservation during processing~~
+ - *Does dithering really work ?*
+   - ~~If not, should consider adding `PIL.Image.quantize` function to the stack of operations~~ (wasn't working indeed)
+   - Does the outputted color numbers is correct ?
  - How to support different color format
    - RGBA5551
    - ia16 (8 bits greyscale  8 bits alpha)
