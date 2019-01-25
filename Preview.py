@@ -7,19 +7,21 @@ from path import Path
 from PIL import Image, ImageTk
 from defaults import zDefault
 
-def recolor(img: Image, **options):
+def recolor(img: Image, alpha: bool, **options):
+    colors_count = options["colors"]["colors"] if not alpha else options["colors"]["colors"] - 1
+    #print("recoloring with [{}] colors".format(colors_count))
     result = img.convert(
         mode=options["colors"]["mode"],
         palette=Image.ADAPTIVE,
-        colors=options["colors"]["colors"])
+        colors=colors_count)
     if options["dither"]:
         dithered = img.convert(
             mode="RGB",
             palette=Image.ADAPTIVE,
-            colors=options["colors"]["colors"])
+            colors=colors_count)
         dithered = dithered.quantize(
-            method=3,
-            colors=options["colors"]["colors"],
+            method=1,
+            colors=colors_count,
             palette=result)
         return dithered
     return result
@@ -35,24 +37,28 @@ def zoom(img: Image, zoom):
     return img.resize(size=resize, resample=Image.NEAREST)
 
 def process_image(img: Image, **options):
-    img = img.convert("RGBA")
+    #print("Image mode process [{}]".format(img.mode))
+    #img = img.convert("RGBA")
     alpha = None
     size = (img.width, img.height)
     if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
-        alpha = img.split()[-1]
+        alpha = img.getchannel("A")
     if options["order"]:
         if options["recolor"]:
-            img = recolor(img, **options)
+            img = recolor(img, alpha, **options)
         if options["resize"]:
             img = resize(img, **options)
     else:
         if options["resize"]:
             img = resize(img, **options)
         if options["recolor"]:
-            img = recolor(img, **options)
+            img = recolor(img, alpha, **options)
     if alpha:
         if options["resize"]:
             alpha = alpha.resize((options["width"], options["height"]), Image.NEAREST)
+        if options["recolor"]:
+            dithering = Image.FLOYDSTEINBERG if options["dither"] else Image.NONE
+            alpha = alpha.convert(mode="1", dither=dithering)
         img.putalpha(alpha)
     return img
 
