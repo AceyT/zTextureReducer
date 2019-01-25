@@ -55,6 +55,7 @@ $> python main.py
  - *Does dithering really work ?*
    - ~~If not, should consider adding `PIL.Image.quantize` function to the stack of operations~~ (wasn't working indeed)
    - *Does the outputted color numbers is correct ?* (dither = duplication of one color)
+   - grayscale & dithering support
  - Better quantization support
    - different parameters exposed
    - alpha related

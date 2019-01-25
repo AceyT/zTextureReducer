@@ -14,7 +14,9 @@ def recolor(img: Image, alpha: bool, **options):
         mode=options["colors"]["mode"],
         palette=Image.ADAPTIVE,
         colors=colors_count)
-    if options["dither"]:
+    if options["dither"] and options["colors"]["mode"] is not "LA":
+        #dither_mode = "L" if options["colors"]["mode"] == "LA" else "RGB"
+        #print("Dither mode [{}]".format(dither_mode))
         dithered = img.convert(
             mode="RGB",
             palette=Image.ADAPTIVE,
