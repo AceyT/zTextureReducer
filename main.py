@@ -3,10 +3,10 @@
 from functools import partial
 import tkinter as tk
 
-from Workspace import zWorkspace
-from Queue import zQueue
-from Options import zOption
-from Preview import zPreview
+from zWorkspace import zWorkspace
+from zQueue import zQueue
+from zOptions import zOption
+from zPreview import zPreview
 
 win = tk.Tk()
 win.title("zTextureReducer")

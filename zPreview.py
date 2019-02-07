@@ -8,23 +8,19 @@ from PIL import Image, ImageTk
 from defaults import zDefault
 
 def recolor(img: Image, alpha: bool, **options):
+    # Alpha channel take 1 color
     colors_count = options["colors"]["colors"] if not alpha else options["colors"]["colors"] - 1
-    #print("recoloring with [{}] colors".format(colors_count))
     result = img.convert(
         mode=options["colors"]["mode"],
         palette=Image.ADAPTIVE,
         colors=colors_count)
     if options["dither"] and options["colors"]["mode"] is not "LA":
-        #dither_mode = "L" if options["colors"]["mode"] == "LA" else "RGB"
-        #print("Dither mode [{}]".format(dither_mode))
-        dithered = img.convert(
-            mode="RGB",
-            palette=Image.ADAPTIVE,
-            colors=colors_count)
-        dithered = dithered.quantize(
-            method=1,
-            colors=colors_count,
-            palette=result)
+        # utilizing underlying imaging core C library directly
+        # maybe implementing custom algorithm would be better
+        # also reorganizing the chain of operations for recoloring 
+        # (by better understanding different parts at work and properly chaining them)
+        dithered = img._new(img.im.convert(options["colors"]["mode"], Image.FLOYDSTEINBERG, result.im))
+        dithered = dithered.quantize(colors=colors_count)
         return dithered
     return result
 
@@ -39,8 +35,6 @@ def zoom(img: Image, zoom):
     return img.resize(size=resize, resample=Image.NEAREST)
 
 def process_image(img: Image, **options):
-    #print("Image mode process [{}]".format(img.mode))
-    #img = img.convert("RGBA")
     alpha = None
     size = (img.width, img.height)
     if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
@@ -56,11 +50,18 @@ def process_image(img: Image, **options):
         if options["recolor"]:
             img = recolor(img, alpha, **options)
     if alpha:
-        if options["resize"]:
-            alpha = alpha.resize((options["width"], options["height"]), Image.NEAREST)
-        if options["recolor"]:
-            dithering = Image.FLOYDSTEINBERG if options["dither"] else Image.NONE
-            alpha = alpha.convert(mode="1", dither=dithering)
+        if options["order"]:
+            if options["recolor"]:
+                dithering = Image.FLOYDSTEINBERG if options["dither"] else Image.NONE
+                alpha = alpha.convert(mode="1", dither=dithering)
+            if options["resize"]:
+                alpha = alpha.resize((options["width"], options["height"]), Image.NEAREST)
+        else:
+            if options["resize"]:
+                alpha = alpha.resize((options["width"], options["height"]), Image.NEAREST)
+            if options["recolor"]:
+                dithering = Image.FLOYDSTEINBERG if options["dither"] else Image.NONE
+                alpha = alpha.convert(mode="1", dither=dithering)
         img.putalpha(alpha)
     return img
 
