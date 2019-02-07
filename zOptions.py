@@ -1,7 +1,7 @@
 #coding: utf-8
 
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from Tooltip import Tooltip
 from path import Path
 from functools import partial
@@ -218,12 +218,21 @@ class zOption:
             self.option_callback(**kwargs)
 
     def _on_export(self):
-        export_path = Path(self.dir_entry.get())
-        if export_path.exists() and self.export_callback:
-            self.export_callback(export_path)
-        elif not export_path.exists():
-            print("Invalid export path : Doesn't exists")
-            print("-- given path : [{}]".format(export_path.abspath()))
+        try:
+            export_path = Path(self.dir_entry.get())
+            if export_path.exists() and self.export_callback:
+                self.export_callback(export_path)
+            elif not export_path.exists():
+                err = "Invalid export path : doesn't exists\n" \
+                "Given path : [{}]".format(export_path.abspath())
+                raise Exception(err)
+        except Exception as err:
+            err_msg = "Something went wrong\n" \
+                "Look at the console and report the issue if there is anything\n\n" \
+                "--- Message caught ---\n" \
+                "{}".format(err)
+            messagebox.showerror("Error", err_msg)
+            return
 
 
 
