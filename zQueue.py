@@ -85,7 +85,6 @@ class zQueue:
                 value,
                 partial(self.set_rename, item))
             self.popUp.place(x=px, y=py+pady, anchor=tk.W, relwidth=1)
-            print("UNFINISHED")
 
     def set_rename(self, item, name_value, *ignore):
         self.queue.item(item, values=(name_value))
@@ -98,6 +97,13 @@ class zQueue:
         for item in self.queue.get_children():
             ## TODO
             ## Rework algo to properly handle renaming option
-            ret.append(self.queue.item(item,'text'))
+            src = self.queue.item(item, 'text')
+            name = ''
+            values = self.queue.item(item, 'values')
+            if values is not '':
+                name = values[0]
+            else:
+                name = Path(src).namebase
+            ret.append((src, name))
         return ret
 

@@ -171,8 +171,8 @@ class zPreview:
                 raise Exception("Export queue empty\nNo item in queue")
             options = convert_options(**self.options)
             for item in queue:
-                img_path = Path(item)
-                res_path = export_path / img_path.name
+                img_path = Path(item[0])
+                res_path = export_path / item[1] + img_path.ext
                 img = Image.open(img_path.abspath())
                 img = process_image(img, **options)
                 img.save(res_path.abspath())

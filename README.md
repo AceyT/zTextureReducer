@@ -12,6 +12,7 @@ An image processing utility, to plan modifications ahead and then batch execute 
     + 16 colors
     + greyscale
  - dithering
+ - renaming files on export
 
 ## Installation
 
@@ -43,9 +44,9 @@ $> python main.py
  - ~~`win/*.bat` files for windows users to easily install dependency and use it.~~
  - Delete queue after export
  - ~~Export confirmation (success / error)~~
- - Renaming options for export
+ - ~~Renaming options for export~~
    - ~~1/2 Queue option to rename~~
-   - 2/2 implementation in export
+   - ~~2/2 implementation in export~~
  - ~~Alpha preservation during processing~~
  - **Better alpha support**
    - Bi Level Alpha support
