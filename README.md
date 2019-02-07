@@ -42,8 +42,10 @@ $> python main.py
  - ~~Add requirements.txt to `pip install` dependency easily~~
  - ~~`win/*.bat` files for windows users to easily install dependency and use it.~~
  - Delete queue after export
- - Export confirmation (success / error)
+ - ~~Export confirmation (success / error)~~
  - Renaming options for export
+   - ~~1/2 Queue option to rename~~
+   - 2/2 implementation in export
  - ~~Alpha preservation during processing~~
  - **Better alpha support**
    - Bi Level Alpha support

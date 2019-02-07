@@ -1,7 +1,7 @@
 #coding: utf-8
 
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from functools import partial
 from path import Path
 from PIL import Image, ImageTk
@@ -165,12 +165,21 @@ class zPreview:
             self._update_preview()
 
     def export_queue(self, queue_getter, export_path):
-        if queue_getter:
-            queue = queue_getter()
-            options = convert_options(**self.options)
-            for item in queue:
-                img_path = Path(item)
-                res_path = export_path / img_path.name
-                img = Image.open(img_path.abspath())
-                img = process_image(img, **options)
-                img.save(res_path.abspath())
+        try:
+            if queue_getter:
+                queue = queue_getter()
+                options = convert_options(**self.options)
+                for item in queue:
+                    img_path = Path(item)
+                    res_path = export_path / img_path.name
+                    img = Image.open(img_path.abspath())
+                    img = process_image(img, **options)
+                    img.save(res_path.abspath())
+        except:
+            err_msg = """
+            Something went wrong
+            please look at the console and report the issue
+            """
+            messagebox.showerror("Error", err_msg)
+            return
+        messagebox.showinfo("Done","Finish exporting queue")
