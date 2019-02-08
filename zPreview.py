@@ -38,7 +38,21 @@ def process_image(img: Image, **options):
     alpha = None
     size = (img.width, img.height)
     if (img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info)) and options["alpha_keep"]:
-        alpha = img.getchannel("A")
+        try:
+            alpha = img.getchannel("A")
+        except ValueError as err:
+            warn_msg = "An image has an alpha information but something is off when getting it\n" \
+                "---\n" \
+                "Error message is : \n" \
+                "{}\n".format(err)
+            #messagebox.showerror("Error", warn_msg)
+            #img.info.pop("transparency", None)
+            print(" -- WARNING -- ")
+            print(warn_msg)
+            alpha = None
+    elif (img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info)) and (not options["alpha_keep"]):
+        img.info.pop("transparency", None)
+        alpha = None
     if options["order"]:
         if options["recolor"]:
             img = recolor(img, alpha, **options)
