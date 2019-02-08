@@ -51,6 +51,10 @@ def process_image(img: Image, **options):
             print(warn_msg)
             alpha = None
     elif (img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info)) and (not options["alpha_keep"]):
+        if img.mode == 'RGBA':
+            img = img.convert('RGB')
+        elif img.mode == 'LA':
+            img = img.convert('L')
         img.info.pop("transparency", None)
         alpha = None
     if options["order"]:
