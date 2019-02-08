@@ -12,6 +12,7 @@ An image processing utility, to plan modifications ahead and then batch execute 
     + 16 colors
     + greyscale
  - dithering
+ - keeping / discarding alpha channel
  - renaming files on export
 
 ## Installation
@@ -49,9 +50,9 @@ $> python main.py
    - ~~2/2 implementation in export~~
  - ~~Alpha preservation during processing~~
  - **Better alpha support**
-   - Bi Level Alpha support
+   - ~~Bi Level Alpha support~~
    - Alpha options
-    - Discard
+    - ~~Discard~~
     - Bi level
     - 255 level
     - Own resize & dither

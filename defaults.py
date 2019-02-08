@@ -27,6 +27,7 @@ class zDefault:
         "recolor" : 1,
         "colors" : color_modes[-1],
         "dither" : 1,
+        "alpha_keep" : 1,
         "order" : order_modes[0],
         "zoom" : zoom[0]
     }

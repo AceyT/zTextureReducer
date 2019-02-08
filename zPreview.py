@@ -37,7 +37,7 @@ def zoom(img: Image, zoom):
 def process_image(img: Image, **options):
     alpha = None
     size = (img.width, img.height)
-    if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
+    if (img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info)) and options["alpha_keep"]:
         alpha = img.getchannel("A")
     if options["order"]:
         if options["recolor"]:
@@ -49,7 +49,7 @@ def process_image(img: Image, **options):
             img = resize(img, **options)
         if options["recolor"]:
             img = recolor(img, alpha, **options)
-    if alpha:
+    if alpha and options["alpha_keep"]:
         if options["order"]:
             if options["recolor"]:
                 dithering = Image.FLOYDSTEINBERG if options["dither"] else Image.NONE

@@ -123,6 +123,17 @@ class zOption:
             command=partial(self._update_fromvar, "dither", self.dither_value))
         self.dither_toggle.pack(side="left")
         self.ditherframe.pack(side="top", anchor="w")
+        # # # Alpha
+        self.alphaframe = tk.Frame(self.recolorframe)
+        self.alpha_value = tk.IntVar()
+        self.alpha_value.set(config["alpha_keep"])
+        self.alpha_toggle = ttk.Checkbutton(
+            self.alphaframe,
+            text="Keep alpha channel",
+            variable=self.alpha_value,
+            command=partial(self._update_fromvar, "alpha_keep", self.alpha_value))
+        self.alpha_toggle.pack(side="left")
+        self.alphaframe.pack(side="top", anchor="w")
         self.recolorframe.pack(side="top", anchor="w")
         sep3 = ttk.Separator(self.optionframe)
         sep3.pack(side="top", expand=True, fill="x")
