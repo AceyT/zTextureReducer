@@ -9,11 +9,13 @@ from defaults import zDefault
 
 def recolor(img: Image, alpha: bool, **options):
     # Alpha channel take 1 color
+    # QUANTIZE with kmeans != 0
+    # FOR ALPHA IS MANDATORY 2 (3depends on a lib)
     colors_count = options["colors"]["colors"] if not alpha else options["colors"]["colors"] - 1
-    result = img.convert(
-        mode=options["colors"]["mode"],
-        palette=Image.ADAPTIVE,
-        colors=colors_count)
+    result = img.quantize(
+        colors=colors_count,
+        method=2,
+        kmeans=0)
     if options["dither"] and options["colors"]["mode"] is not "LA":
         # utilizing underlying imaging core C library directly
         # maybe implementing custom algorithm would be better
@@ -22,6 +24,10 @@ def recolor(img: Image, alpha: bool, **options):
         dithered = img._new(img.im.convert(options["colors"]["mode"], Image.FLOYDSTEINBERG, result.im))
         dithered = dithered.quantize(colors=colors_count)
         return dithered
+    result = result.convert(
+        mode=options["colors"]["mode"],
+        palette=Image.ADAPTIVE,
+        colors=colors_count)
     return result
 
 def resize(img: Image, **options):
@@ -49,14 +55,14 @@ def process_image(img: Image, **options):
             #img.info.pop("transparency", None)
             print(" -- WARNING -- ")
             print(warn_msg)
-            alpha = None
+            alpha = False
     elif (img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info)) and (not options["alpha_keep"]):
         if img.mode == 'RGBA':
             img = img.convert('RGB')
         elif img.mode == 'LA':
             img = img.convert('L')
         img.info.pop("transparency", None)
-        alpha = None
+        alpha = False
     if options["order"]:
         if options["recolor"]:
             img = recolor(img, alpha, **options)
