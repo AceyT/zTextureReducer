@@ -60,7 +60,7 @@ class zQueue:
                     "", 
                     "end",
                     text=item,
-                    values=("{}".format(fp.namebase))
+                    values=("{}".format(fp.stem))
                     )
 
     def _remove_cb(self):
@@ -75,11 +75,11 @@ class zQueue:
         """
         event = args[0]
         item = self.queue.identify_row(event.y)
-        if self.queue.identify_column(event.x) == "#1" and item is not '':
+        if self.queue.identify_column(event.x) == "#1" and item != '':
             px, py, width, height = self.queue.bbox(item, "#1")
             pady = height // 2
             values = self.queue.item(item, "values")
-            value = values[0] if values is not '' else ''
+            value = values[0] if values != '' else ''
             self.popUp = zEntryPopup(
                 self.queue,
                 value,
@@ -100,10 +100,10 @@ class zQueue:
             src = self.queue.item(item, 'text')
             name = ''
             values = self.queue.item(item, 'values')
-            if values is not '':
+            if values != '':
                 name = values[0]
             else:
-                name = Path(src).namebase
+                name = Path(src).stem
             ret.append((src, name))
         return ret
 

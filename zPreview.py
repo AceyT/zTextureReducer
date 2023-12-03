@@ -40,7 +40,7 @@ def zoom(img: Image, zoom):
     resize = (img.width * zoom, img.height * zoom)
     return img.resize(size=resize, resample=Image.NEAREST)
 
-def process_image(img: Image, **options):
+def process_image(img: Image, **options) -> Image:
     alpha = None
     size = (img.width, img.height)
     if (img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info)) and options["alpha_keep"]:
@@ -154,6 +154,7 @@ class zPreview:
         self.img_container.pack(expand=True)
         self.image_path = None
         self.container.pack(expand=True, fill="both")
+        self.__return_preview_size = 0
         pass
 
     def _forward_options(self, key: str, var: tk.Variable, *unused):
@@ -162,14 +163,17 @@ class zPreview:
         self.set_options(**option)
         
     def _update_preview(self):
+        return_preview_size = 0
         options = convert_options(**self.options)
         if self.image_path:
             tmp_pil = Image.open(self.image_path)
             if options["preview"]:
                 tmp_pil = process_image(tmp_pil, **options)
+                return_preview_size = len(tmp_pil.getdata())
             tmp_pil = zoom(tmp_pil, options["zoom"])
             self.image_preview = ImageTk.PhotoImage(tmp_pil)
             self.img_container.configure(image=self.image_preview)
+        self.__return_preview_size = return_preview_size
 
     def on_image_select_update(self, img):
         img = Path(img)
@@ -187,6 +191,9 @@ class zPreview:
             update = True
         if update:
             self._update_preview()
+
+    def get_preview_size(self) -> int:
+        return self.__return_preview_size
 
     def export_queue(self, queue_getter, export_path):
         if queue_getter:

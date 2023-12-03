@@ -27,6 +27,7 @@ class zOption:
         self.container.pack(side="top", expand=True, fill="both", anchor="e")
         self.option_callback = kwargs.get("on_options_modified", None)
         self.export_callback = kwargs.get("on_export", None)
+        self.get_preview_size_callback = kwargs.get("get_preview_size", None)
         config = zDefault.config.copy()
         # Options controls
         self.optionframe = tk.Frame(self.container)
@@ -172,6 +173,15 @@ class zOption:
         sep5.pack(side="top", expand=True, fill="x")
         # Export
         self.export_frame = tk.Frame(self.container)
+        preview_size_label = ttk.Label(self.export_frame, text="Resulting size :")
+        preview_size_label.pack(side="left")
+        self.preview_size_text = tk.StringVar(value="0")
+        preview_size_result = ttk.Label(self.export_frame, textvariable=self.preview_size_text)
+        preview_size_result.pack(side="left")
+        preview_size_limit = ttk.Label(self.export_frame, text="/ 2048 (bytes)")
+        preview_size_limit.pack(side="left")
+
+
         self.export_button = tk.Button(self.export_frame,
                                        text="EXPORT",
                                        bg="#ffdf82",
@@ -227,6 +237,9 @@ class zOption:
     def _update_config(self, **kwargs):
         if self.option_callback:
             self.option_callback(**kwargs)
+        if self.get_preview_size_callback:
+            size = self.get_preview_size_callback()
+            self.preview_size_text.set(f"{size}")
 
     def _on_export(self):
         try:

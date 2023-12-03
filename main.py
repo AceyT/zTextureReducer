@@ -22,7 +22,8 @@ preview = zPreview(frame_preview)
 workspace.bind_dclick_select(preview.on_image_select_update)
 options = zOption(frame_options,
                   on_options_modified=preview.set_options,
-                  on_export=partial(preview.export_queue, queue.get_queue))
+                  on_export=partial(preview.export_queue, queue.get_queue),
+                  get_preview_size=preview.get_preview_size)
 
 frame_workspace.grid(column=0, row=0, sticky="nesw")
 frame_queue.grid(column=0, row=1, sticky="nesw")
