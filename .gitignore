@@ -2,6 +2,8 @@
 .vscode
 __pycache__
 export_test
+test_img
+zTextureReducer.log
 
 Pipfile
 Pipfile.lock

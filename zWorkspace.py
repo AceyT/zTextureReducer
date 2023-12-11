@@ -4,6 +4,9 @@ import tkinter as tk
 from tkinter import ttk, filedialog
 from path import Path
 from PIL import Image
+from zLog import get_logger
+
+logger = get_logger("zTextureReducer")
 
 class zWorkspace:
 
@@ -55,7 +58,7 @@ class zWorkspace:
         files = tk.filedialog.askopenfilenames(
             initialdir="./",
             title="Select File(s)",
-            filetypes=(("png files", "*.png"), ("All Files", "*")))
+            filetypes=(("png files", "*.png"), ("bmp files", "*.bmp"), ("All Files", "*")))
         for filepath in files:
             self.add_file(Path(filepath))
         ###/*, ("jpeg files", "*.jpg"),*/ 
@@ -80,15 +83,21 @@ class zWorkspace:
     # Utility
 
     def add_file(self, file: Path):
-        if file.exists() and file.ext == ".png":
-            tmp = Image.open(file.abspath())
-            size = tmp.size
-            tmp.close()
-            self.files.insert(
-                "",
-                "end",
-                text=file.basename(),
-                values=("{}x{}".format(*size), "{}".format(file.abspath())))
+        try:
+            if file.exists() and file.ext in [".png", ".bmp"]:
+                tmp = Image.open(file.abspath())
+                tmp.load()
+                size = tmp.size
+                logger.debug(f"{file} ; size {size} ; mode {tmp.mode}")
+                tmp.close()
+                self.files.insert(
+                    "",
+                    "end",
+                    text=file.basename(),
+                    values=("{}x{}".format(*size), "{}".format(file.abspath())))
+        except Exception as e:
+            err_msg = f"Couldn't load <{file.abspath()}>, {type(e)} : {e}"
+            logger.warn(err_msg)
 
     def bind_dclick_select(self, callback):
         self.selection_callback = callback

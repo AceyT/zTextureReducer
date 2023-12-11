@@ -6,6 +6,9 @@ from Tooltip import Tooltip
 from path import Path
 from functools import partial
 from defaults import zDefault
+from zLog import get_logger
+
+logger = get_logger("zTextureReducer")
 
 def set_state(frame_widget: tk.Frame, value:int):
     _state = "normal" if value else "disabled"

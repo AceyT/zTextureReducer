@@ -6,6 +6,9 @@ from tkinter import ttk
 from Tooltip import Tooltip
 from path import Path
 from zEntryPopup import zEntryPopup
+from zLog import get_logger
+
+logger = get_logger("zTextureReducer")
 
 class zQueue:
 

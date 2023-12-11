@@ -3,10 +3,13 @@
 from functools import partial
 import tkinter as tk
 
+from zLog import get_logger
 from zWorkspace import zWorkspace
 from zQueue import zQueue
 from zOptions import zOption
 from zPreview import zPreview
+
+logger = get_logger("zTextureReducer")
 
 win = tk.Tk()
 win.title("zTextureReducer")

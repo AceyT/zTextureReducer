@@ -6,6 +6,9 @@ from functools import partial
 from path import Path
 from PIL import Image, ImageTk
 from defaults import zDefault
+from zLog import get_logger
+
+logger = get_logger("zTextureReducer")
 
 def recolor(img: Image, alpha: bool, **options):
     # Alpha channel take 1 color
@@ -16,7 +19,7 @@ def recolor(img: Image, alpha: bool, **options):
         colors=colors_count,
         method=2,
         kmeans=0)
-    if options["dither"] and options["colors"]["mode"] is not "LA":
+    if options["dither"] and options["colors"]["mode"] != "LA":
         # utilizing underlying imaging core C library directly
         # maybe implementing custom algorithm would be better
         # also reorganizing the chain of operations for recoloring 
@@ -43,6 +46,7 @@ def zoom(img: Image, zoom):
 def process_image(img: Image, **options) -> Image:
     alpha = None
     size = (img.width, img.height)
+    """
     if (img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info)) and options["alpha_keep"]:
         try:
             alpha = img.getchannel("A")
@@ -87,6 +91,52 @@ def process_image(img: Image, **options) -> Image:
                 dithering = Image.FLOYDSTEINBERG if options["dither"] else Image.NONE
                 alpha = alpha.convert(mode="1", dither=dithering)
         img.putalpha(alpha)
+    """
+    try:
+        tmp = img.convert(mode="RGBA")
+        if options["alpha_keep"]:
+            try:
+                alpha = tmp.getchannel("A")
+            except ValueError as err:
+                warn_msg = "An image has an alpha information but something is off when getting it\n" \
+                    "---\n" \
+                    "Error message is : \n" \
+                    "{}\n".format(err)
+                #messagebox.showerror("Error", warn_msg)
+                #img.info.pop("transparency", None)
+                logger.warn(" -- WARNING -- ")
+                logger.warn(warn_msg)
+                alpha = None
+        else:
+            tmp = tmp.convert(mode="RGB")
+        if options["order"]:
+            if options["recolor"]:
+                tmp = recolor(tmp, alpha != None, **options)
+            if options["resize"]:
+                tmp = resize(tmp, **options)
+        else:
+            if options["resize"]:
+                tmp = resize(tmp, **options)
+            if options["recolor"]:
+                tmp = recolor(tmp, alpha != None, **options)
+        if alpha != None and options["alpha_keep"]:
+            if options["order"]:
+                if options["recolor"]:
+                    dithering = Image.FLOYDSTEINBERG if options["dither"] else Image.NONE
+                    alpha = alpha.convert(mode="1", dither=dithering)
+                if options["resize"]:
+                    alpha = alpha.resize((options["width"], options["height"]), Image.NEAREST)
+            else:
+                if options["resize"]:
+                    alpha = alpha.resize((options["width"], options["height"]), Image.NEAREST)
+                if options["recolor"]:
+                    dithering = Image.FLOYDSTEINBERG if options["dither"] else Image.NONE
+                    alpha = alpha.convert(mode="1", dither=dithering)
+            tmp.putalpha(alpha)
+        img = tmp
+    except Exception as e:
+        err_msg = f"Processing error : {type(e)} : {e}"
+        logger.warn(err_msg)
     return img
 
 def convert_options(**options):
